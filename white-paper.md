@@ -2,15 +2,15 @@
 # Release Pipeline för Secondhand Startup
 
 ## Sammanfattning
-
+Många små startups saknar en strukturerad process för hur kod går från utveckling till produktion. Det leder till buggar hos användarna och stress för teamet. Det här white paper beskriver hur ett litet secondhand-startup kan lösa problemet genom en enkel men effektiv release-pipeline i GitHub Actions. Pipelinen fungerar som en grindvakt där kod måste passera bygg, tester och ett manuellt godkännande innan den når produktion. Lösningen är enkel att sätta upp, passar ett litet team och minskar risken för att buggig kod släpps igenom.
 
 ## Företagsbeskrivning och historia
 Företaget är en liten startup som säljer secondhand-prylar online. De saknar en tydlig plan för hur kod ska gå från utveckling till produktion. Releaseprocessen går ofta för snabbt och det finns för få tester, vilket gör att saker kraschar i produktion. Eftersom teamet är litet jobbar folk mest själva och kommunikationen kring releaser är dålig. Som resultat dyker buggar upp hos användarna, vilket skapar problem och stress för teamet. Problemen uppstår främst på grund av tidsbrist, brist på struktur och tydliga processer. Teamet är litet och saknar tydlig ansvarsfördelning, vilket gör att kod ofta deployas utan tillräcklig testning.
 
 ## Lösningsförslag
-Företaget använder en webbapplikation byggd med JavaScript (Node.js) och en databas som MongoDB. Koden hanteras via GitHub och deployment sker via GitHub Pages.
+Företaget använder en webbapplikation byggd med JavaScript (Node.js) och en relationsdatabas som PostgreSQL. Koden hanteras via GitHub och deployment sker via GitHub Pages.
 
-Företaget behöver en release-pipeline som fungerar som en grind mellan utveckling och produktion. När en utvecklare pushar kod till repot startar pipelinen automatiskt. Först testas att koden kompilerar och byggs. Fungerar inte detta stoppas pipelinen direkt så att felet inte går vidare.
+Företaget behöver en release-pipeline som fungerar som en grindvakt mellan utveckling och produktion. När en utvecklare öppnar en pull request mot main startar pipelinen automatiskt. Först testas att koden kompilerar och byggs. Fungerar inte detta stoppas pipelinen direkt så att felet inte går vidare.
 
 Efter det körs automatiska tester som kontrollerar att funktionalitet och olika delar av systemet fungerar tillsammans. Om testerna misslyckas stoppas pipelinen igen.
 
@@ -23,8 +23,8 @@ Ansvarsfördelningen blir tydlig. Utvecklarna pushar kod, pipelinen hanterar tes
 För att lösa problemen behöver företaget införa tydliga DevOps-processer, som CI/CD, automatiserade tester, kodgranskning och en strukturerad release-process. Detta gör att kod alltid testas innan den når produktion och att teamet kan arbeta mer effektivt och strukturerat.
 
 ## Exempel på pipeline för release-processen
-1. Kod pushas till repo
-   * Utvecklarna skickar ny kod till GitHub
+1. Pull request öppnas mot main
+   * Utvecklaren skapar en feature branch och öppnar en pull request
    * Pipeline startar automatiskt
 2. Bygg & kompilering
    * Koden kompileras automatiskt
@@ -37,11 +37,9 @@ För att lösa problemen behöver företaget införa tydliga DevOps-processer, s
    * Teamet testar kritiska funktioner, t.ex. login och köp
    * Pipeline släpper inte vidare förrän QA är godkänd
 5. Deployment till produktion
-   * Om allt ovan är godkänt deployas koden 
+   * Om allt ovan är godkänt deployas koden
 
-## Verktyg & Deployment
-När de gäller continuous delivery och continuous deployment passar continuous delivery bäst för detta startupföretag. Detta eftersom koden kräver ett manuellt godkännande innan den släpps till produktion, vilket gör att teamet har kontroll över när releaser sker. Continuoues deployment saknar denna extra kontroll och deployas automatiskt till produktion så fort alla tester är godkända.
+## Deployment-metod
+När det gäller Continuous Delivery och Continuous Deployment passar Continuous Delivery bäst för detta startupföretag. Detta eftersom koden kräver ett manuellt godkännande innan den släpps till produktion, vilket gör att teamet har kontroll över när releaser sker. Continuous Deployment saknar denna extra kontroll och deployas automatiskt till produktion så fort alla tester är godkända.
 
-
-
-Exempel på YAML-fil
+## Verktygsval
