@@ -43,3 +43,100 @@ För att lösa problemen behöver företaget införa tydliga DevOps-processer, s
 När det gäller Continuous Delivery och Continuous Deployment passar Continuous Delivery bäst för detta startupföretag. Detta eftersom koden kräver ett manuellt godkännande innan den släpps till produktion, vilket gör att teamet har kontroll över när releaser sker. Continuous Deployment saknar denna extra kontroll och deployas automatiskt till produktion så fort alla tester är godkända.
 
 ## Verktygsval
+Nedan är ett exempel på en enkel GitHub Actions-fil som styr när en deployment sker:
+
+```yaml
+name: Release Pipeline
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+env:
+  BUILD_PATH: '.'
+
+jobs:
+  build:
+    name: Build site
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Use pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: pnpm
+          cache-dependency-path: ${{ env.BUILD_PATH }}/pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Build the project
+        run: pnpm run build
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ${{ env.BUILD_PATH }}/dist
+
+  test:
+    name: Run tests
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: pnpm
+          cache-dependency-path: ${{ env.BUILD_PATH }}/pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Run tests
+        run: pnpm test
+
+  deploy:
+    name: Publish changes
+    runs-on: ubuntu-latest
+    needs: test
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+` ` `
+
+Pipelinen triggas automatiskt när en pull request öppnas mot `main`. Varje steg kräver att föregående lyckades (`needs`), vilket skapar en naturlig kedja av gates. `environment: github-pages` gör att deployment kräver manuellt godkännande i GitHub innan koden går live.
+```
